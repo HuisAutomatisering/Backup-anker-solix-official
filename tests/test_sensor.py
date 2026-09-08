@@ -12,10 +12,18 @@ sensor.py reads, mirroring the pattern used in test_base_entity.py.
 
 from __future__ import annotations
 
+import math
+from types import SimpleNamespace
 from typing import Any
+from unittest.mock import AsyncMock
 
 import pytest
-from custom_components.anker_solix_official.sensor import ModbusLocalDeviceSensor
+from custom_components.anker_solix_official.const import DOMAIN
+from custom_components.anker_solix_official.sensor import (
+    ModbusLocalDeviceSensor,
+    _is_sensor_entity,
+    async_setup_entry,
+)
 
 
 class _FakeCoordinator:
@@ -272,3 +280,395 @@ class TestMissingKeyIsUnknownNotZero:
             },
         )
         assert entity.native_value is None
+
+
+class TestIsSensorEntity:
+    def test_internal_entity_excluded(self) -> None:
+        assert not _is_sensor_entity("k", {"internal": True})
+
+    def test_read_category_is_sensor(self) -> None:
+        assert _is_sensor_entity("k", {"data_type_category": "read"})
+
+    def test_missing_category_defaults_to_sensor(self) -> None:
+        assert _is_sensor_entity("k", {})
+
+    def test_control_category_excluded(self) -> None:
+        assert not _is_sensor_entity("k", {"data_type_category": "control"})
+
+
+class TestAsyncSetupEntry:
+    async def test_creates_only_non_internal_sensors(
+        self, fake_coordinator
+    ) -> None:
+        fake_coordinator.get_device_data_points = AsyncMock(
+            return_value={
+                "meter_sw_version": METER_SW_VERSION_CONFIG,
+                "load_power": {
+                    "address": 10010,
+                    "data_type": "INT32",
+                    "unit": "W",
+                    "gain": 1,
+                },
+                "internal_mask": {"address": 10999, "internal": True},
+                "mode_control": {
+                    "address": 10100,
+                    "data_type_category": "control",
+                    "display_type": "select",
+                },
+            }
+        )
+        hass = SimpleNamespace(data={DOMAIN: {"e1": fake_coordinator}})
+        entry = SimpleNamespace(entry_id="e1")
+        added: list = []
+        await async_setup_entry(hass, entry, added.extend)
+        assert len(added) == 2
+        assert all(isinstance(e, ModbusLocalDeviceSensor) for e in added)
+
+    async def test_no_data_points_creates_nothing(self, fake_coordinator) -> None:
+        fake_coordinator.get_device_data_points = AsyncMock(return_value={})
+        fake_coordinator.ip_address = "192.168.1.50"
+        hass = SimpleNamespace(data={DOMAIN: {"e1": fake_coordinator}})
+        entry = SimpleNamespace(entry_id="e1")
+        added: list = []
+        await async_setup_entry(hass, entry, added.extend)
+        assert added == []
+
+
+class TestAvailableVersionGate:
+    def _gated(self, fake_coordinator) -> ModbusLocalDeviceSensor:
+        return _make_sensor(
+            fake_coordinator,
+            "feature_x",
+            {
+                "address": 10000,
+                "data_type": "UINT16",
+                "unit": "/",
+                "gain": 1,
+                "version_gate": True,
+            },
+        )
+
+    def test_visible_flag_1_shows(self, fake_coordinator) -> None:
+        fake_coordinator.data = {"feature_x_visible": 1}
+        assert self._gated(fake_coordinator).available is True
+
+    def test_visible_flag_0_hides(self, fake_coordinator) -> None:
+        fake_coordinator.data = {"feature_x_visible": 0}
+        assert self._gated(fake_coordinator).available is False
+
+    def test_invalid_visible_flag_hides(self, fake_coordinator) -> None:
+        fake_coordinator.data = {"feature_x_visible": "abc"}
+        assert self._gated(fake_coordinator).available is False
+
+    def test_missing_visible_flag_hides(self, fake_coordinator) -> None:
+        fake_coordinator.data = {"other": 1}
+        assert self._gated(fake_coordinator).available is False
+
+    def test_empty_data_hides(self, fake_coordinator) -> None:
+        fake_coordinator.data = {}
+        assert self._gated(fake_coordinator).available is False
+
+
+class TestAvailableVisibilityEntity:
+    def _legacy_gated(self, fake_coordinator) -> ModbusLocalDeviceSensor:
+        return _make_sensor(
+            fake_coordinator,
+            "feature_y",
+            {
+                "address": 10001,
+                "data_type": "UINT16",
+                "unit": "/",
+                "gain": 1,
+                "visibility_entity": "mode",
+                "visibility_value": 3,
+            },
+        )
+
+    def test_matching_value_shows(self, fake_coordinator) -> None:
+        fake_coordinator.data = {"mode": 3}
+        assert self._legacy_gated(fake_coordinator).available is True
+
+    def test_mismatched_value_hides(self, fake_coordinator) -> None:
+        fake_coordinator.data = {"mode": 1}
+        assert self._legacy_gated(fake_coordinator).available is False
+
+    def test_missing_value_hides(self, fake_coordinator) -> None:
+        fake_coordinator.data = {"other": 3}
+        assert self._legacy_gated(fake_coordinator).available is False
+
+    def test_invalid_value_hides(self, fake_coordinator) -> None:
+        fake_coordinator.data = {"mode": "x"}
+        assert self._legacy_gated(fake_coordinator).available is False
+
+    def test_empty_data_hides(self, fake_coordinator) -> None:
+        fake_coordinator.data = {}
+        assert self._legacy_gated(fake_coordinator).available is False
+
+    def test_unavailable_coordinator_hides(self, fake_coordinator) -> None:
+        fake_coordinator.last_update_success = False
+        fake_coordinator.data = {"mode": 3}
+        assert self._legacy_gated(fake_coordinator).available is False
+
+
+class TestNumericSetupUnits:
+    @pytest.mark.parametrize(
+        ("unit", "expected_class"),
+        [
+            ("°C", "temperature"),
+            ("V", "voltage"),
+            ("A", "current"),
+        ],
+    )
+    def test_unit_derives_device_class(
+        self, fake_coordinator, unit, expected_class
+    ) -> None:
+        entity = _make_sensor(
+            fake_coordinator,
+            "probe",
+            {"address": 10002, "data_type": "INT16", "unit": unit, "gain": 1},
+        )
+        assert entity.device_class == expected_class
+        assert entity.state_class == "measurement"
+
+    def test_power_direction_format_skips_numeric_setup(
+        self, fake_coordinator
+    ) -> None:
+        entity = _make_sensor(
+            fake_coordinator,
+            "grid_power",
+            {
+                "address": 10003,
+                "data_type": "INT32",
+                "unit": "W",
+                "gain": 1,
+                "power_direction_format": {"positive": "Import", "negative": "Export"},
+            },
+        )
+        assert entity.device_class is None
+        assert entity.native_unit_of_measurement is None
+
+
+class TestAggregation:
+    def test_sums_additional_sources_as_int(self, fake_coordinator) -> None:
+        fake_coordinator.data = {"primary": 100, "secondary": 50}
+        entity = _make_sensor(
+            fake_coordinator,
+            "primary",
+            {
+                "address": 10300,
+                "data_type": "INT32",
+                "unit": "W",
+                "gain": 1,
+                "additional_sources": ["secondary"],
+            },
+        )
+        assert entity.native_value == 150
+
+    def test_float_sum_kept_when_fractional(self, fake_coordinator) -> None:
+        fake_coordinator.data = {"primary": 1.5, "secondary": 2.25}
+        entity = _make_sensor(
+            fake_coordinator,
+            "primary",
+            {
+                "address": 10300,
+                "data_type": "INT32",
+                "unit": "kW",
+                "gain": 1,
+                "additional_sources": ["secondary"],
+            },
+        )
+        assert entity.native_value == 3.75
+
+    def test_non_numeric_source_skipped(self, fake_coordinator) -> None:
+        fake_coordinator.data = {"primary": 100, "secondary": "abc"}
+        entity = _make_sensor(
+            fake_coordinator,
+            "primary",
+            {
+                "address": 10300,
+                "data_type": "INT32",
+                "unit": "W",
+                "gain": 1,
+                "additional_sources": ["secondary"],
+            },
+        )
+        assert entity.native_value == 100
+
+    def test_non_numeric_primary_returned_as_is(self, fake_coordinator) -> None:
+        fake_coordinator.data = {"primary": "text"}
+        entity = _make_sensor(
+            fake_coordinator,
+            "primary",
+            {
+                "address": 10300,
+                "data_type": "STRING",
+                "unit": "/",
+                "gain": 1,
+                "additional_sources": ["secondary"],
+            },
+        )
+        assert entity.native_value == "text"
+
+
+class TestPowerSplitMode:
+    def _split(self, fake_coordinator, mode: str) -> ModbusLocalDeviceSensor:
+        return _make_sensor(
+            fake_coordinator,
+            "grid_power",
+            {
+                "address": 10400,
+                "data_type": "INT32",
+                "unit": "W",
+                "gain": 1,
+                "power_split_mode": mode,
+            },
+        )
+
+    def test_positive_only(self, fake_coordinator) -> None:
+        fake_coordinator.data = {"grid_power": 300}
+        assert self._split(fake_coordinator, "positive_only").native_value == 300
+        fake_coordinator.data = {"grid_power": -300}
+        assert self._split(fake_coordinator, "positive_only").native_value == 0
+
+    def test_negative_only(self, fake_coordinator) -> None:
+        fake_coordinator.data = {"grid_power": -300}
+        assert self._split(fake_coordinator, "negative_only").native_value == 300
+        fake_coordinator.data = {"grid_power": 300}
+        assert self._split(fake_coordinator, "negative_only").native_value == 0
+
+    def test_unknown_mode_passes_value_through(self, fake_coordinator) -> None:
+        fake_coordinator.data = {"grid_power": 300}
+        assert self._split(fake_coordinator, "weird").native_value == 300
+
+
+class TestPowerDirectionFormat:
+    def _formatted(self, fake_coordinator, unit="W") -> ModbusLocalDeviceSensor:
+        return _make_sensor(
+            fake_coordinator,
+            "grid_power",
+            {
+                "address": 10500,
+                "data_type": "INT32",
+                "unit": unit,
+                "gain": 1,
+                "power_direction_format": {
+                    "positive": "Import",
+                    "negative": "Export",
+                },
+            },
+        )
+
+    def test_positive_value_formatted(self, fake_coordinator) -> None:
+        fake_coordinator.data = {"grid_power": 300}
+        assert self._formatted(fake_coordinator).native_value == "Import 300 W"
+
+    def test_negative_value_formatted(self, fake_coordinator) -> None:
+        fake_coordinator.data = {"grid_power": -300}
+        assert self._formatted(fake_coordinator).native_value == "Export 300 W"
+
+    def test_zero_without_direction(self, fake_coordinator) -> None:
+        fake_coordinator.data = {"grid_power": 0}
+        assert self._formatted(fake_coordinator).native_value == "0 W"
+
+    def test_slash_unit_has_no_suffix(self, fake_coordinator) -> None:
+        fake_coordinator.data = {"grid_power": 300}
+        assert (
+            self._formatted(fake_coordinator, unit="/").native_value == "Import 300"
+        )
+
+    def test_non_numeric_value_returned_as_is(self, fake_coordinator) -> None:
+        fake_coordinator.data = {"grid_power": "abc"}
+        assert self._formatted(fake_coordinator).native_value == "abc"
+
+
+class TestValueMappingEdge:
+    def test_nan_falls_through_mapping(self, fake_coordinator) -> None:
+        fake_coordinator.data = {"meter_type": math.nan}
+        entity = _make_sensor(
+            fake_coordinator,
+            "meter_type",
+            {
+                "address": 10630,
+                "data_type": "UINT16",
+                "unit": "/",
+                "gain": 1,
+                "value_mapping": {1: "single_phase"},
+            },
+        )
+        assert math.isnan(entity.native_value)
+
+
+class TestNativeValueUnavailable:
+    def test_none_when_coordinator_failed(self, fake_coordinator) -> None:
+        fake_coordinator.last_update_success = False
+        fake_coordinator.data = {"load_power": 300}
+        entity = _make_sensor(
+            fake_coordinator,
+            "load_power",
+            {"address": 10010, "data_type": "INT32", "unit": "W", "gain": 1},
+        )
+        assert entity.native_value is None
+
+
+class TestExtraStateAttributes:
+    def test_basic_attributes(self, fake_coordinator) -> None:
+        entity = _make_sensor(
+            fake_coordinator,
+            "load_power",
+            {"address": 10010, "data_type": "INT32", "unit": "W", "gain": 1, "count": 2},
+        )
+        attrs = entity.extra_state_attributes
+        assert attrs["modbus_address"] == 10010
+        assert attrs["data_type"] == "INT32"
+        assert attrs["register_count"] == 2
+
+    def test_direction_format_exposes_raw_value(self, fake_coordinator) -> None:
+        fake_coordinator.data = {"grid_power": -300}
+        entity = _make_sensor(
+            fake_coordinator,
+            "grid_power",
+            {
+                "address": 10500,
+                "data_type": "INT32",
+                "unit": "W",
+                "gain": 1,
+                "power_direction_format": {"positive": "Import", "negative": "Export"},
+            },
+        )
+        attrs = entity.extra_state_attributes
+        assert attrs["raw_value"] == -300
+        assert attrs["unit"] == "W"
+
+    def test_direction_format_non_numeric_has_no_raw(self, fake_coordinator) -> None:
+        fake_coordinator.data = {"grid_power": "abc"}
+        entity = _make_sensor(
+            fake_coordinator,
+            "grid_power",
+            {
+                "address": 10500,
+                "data_type": "INT32",
+                "unit": "W",
+                "gain": 1,
+                "power_direction_format": {"positive": "Import", "negative": "Export"},
+            },
+        )
+        assert "raw_value" not in entity.extra_state_attributes
+
+    def test_aggregated_exposes_components(self, fake_coordinator) -> None:
+        fake_coordinator.data = {"primary": 100, "secondary": 50}
+        entity = _make_sensor(
+            fake_coordinator,
+            "primary",
+            {
+                "address": 10300,
+                "data_type": "INT32",
+                "unit": "W",
+                "gain": 1,
+                "additional_sources": ["secondary", "tertiary"],
+            },
+        )
+        attrs = entity.extra_state_attributes
+        assert attrs["primary_value"] == 100
+        assert attrs["additional_sources"] == ["secondary", "tertiary"]
+        assert attrs["source_secondary"] == 50
+        assert "source_tertiary" not in attrs

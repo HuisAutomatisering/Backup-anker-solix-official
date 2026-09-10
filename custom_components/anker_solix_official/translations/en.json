@@ -61,9 +61,6 @@
     },
     "enable_backup_soc_first": {
       "message": "This feature requires enabling the Backup Reserve switch in the Anker app under Settings."
-    },
-    "power_below_optimal_range": {
-      "message": "The input power of {value}W is below the optimal operating range. Control accuracy may deviate."
     }
   },
   "entity": {
@@ -266,6 +263,45 @@
           "disconnected": "Turn Off",
           "connected": "Turn On"
         }
+      },
+      "primary_total_reactive_power": {
+        "name": "Main CT Total Reactive Power"
+      },
+      "primary_total_power_factor": {
+        "name": "Main CT Total Power Factor"
+      },
+      "secondary_total_reactive_power": {
+        "name": "Secondary CT Total Reactive Power"
+      },
+      "secondary_total_power_factor": {
+        "name": "Secondary CT Total Power Factor"
+      },
+      "secondary_phase_a_forward_active_energy": {
+        "name": "Secondary CT Phase A Consumption"
+      },
+      "secondary_phase_b_forward_active_energy": {
+        "name": "Secondary CT Phase B Consumption"
+      },
+      "secondary_phase_c_forward_active_energy": {
+        "name": "Secondary CT Phase C Consumption"
+      },
+      "secondary_total_forward_active_energy": {
+        "name": "Secondary CT Total Consumption"
+      },
+      "secondary_phase_a_reverse_active_energy": {
+        "name": "Secondary CT Phase A Feed-in"
+      },
+      "secondary_phase_b_reverse_active_energy": {
+        "name": "Secondary CT Phase B Feed-in"
+      },
+      "secondary_phase_c_reverse_active_energy": {
+        "name": "Secondary CT Phase C Feed-in"
+      },
+      "secondary_total_reverse_active_energy": {
+        "name": "Secondary CT Total Feed-in"
+      },
+      "cumulative_energy": {
+        "name": "Cumulative Energy"
       }
     },
     "select": {

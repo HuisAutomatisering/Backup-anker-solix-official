@@ -61,9 +61,6 @@
     },
     "enable_backup_soc_first": {
       "message": "Deze functie vereist het inschakelen van de back-upreserveschakelaar in de instellingen van de Anker-app."
-    },
-    "power_below_optimal_range": {
-      "message": "Het ingevoerde vermogen van {value}W ligt onder het optimale werkbereik. De regelnauwkeurigheid kan hierdoor afwijken."
     }
   },
   "entity": {
@@ -266,6 +263,45 @@
           "disconnected": "Uitschakelen",
           "connected": "Inschakelen"
         }
+      },
+      "primary_total_reactive_power": {
+        "name": "Hoofd-CT Totaal blindvermogen"
+      },
+      "primary_total_power_factor": {
+        "name": "Hoofd-CT Totale arbeidsfactor"
+      },
+      "secondary_total_reactive_power": {
+        "name": "Secundaire CT Totaal blindvermogen"
+      },
+      "secondary_total_power_factor": {
+        "name": "Secundaire CT Totale arbeidsfactor"
+      },
+      "secondary_phase_a_forward_active_energy": {
+        "name": "Secundaire CT Fase A Verbruik"
+      },
+      "secondary_phase_b_forward_active_energy": {
+        "name": "Secundaire CT Fase B Verbruik"
+      },
+      "secondary_phase_c_forward_active_energy": {
+        "name": "Secundaire CT Fase C Verbruik"
+      },
+      "secondary_total_forward_active_energy": {
+        "name": "Secundaire CT Totaal verbruik"
+      },
+      "secondary_phase_a_reverse_active_energy": {
+        "name": "Secundaire CT Fase A Teruglevering"
+      },
+      "secondary_phase_b_reverse_active_energy": {
+        "name": "Secundaire CT Fase B Teruglevering"
+      },
+      "secondary_phase_c_reverse_active_energy": {
+        "name": "Secundaire CT Fase C Teruglevering"
+      },
+      "secondary_total_reverse_active_energy": {
+        "name": "Secundaire CT Totale teruglevering"
+      },
+      "cumulative_energy": {
+        "name": "Cumulatieve energie"
       }
     },
     "select": {

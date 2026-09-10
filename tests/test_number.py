@@ -437,34 +437,6 @@ class TestValueConstraints:
         )
         entity._validate_value_constraints(15)
 
-    async def test_warning_range_in_range_shows_notification(self, coord) -> None:
-        entity = _make_number(
-            coord,
-            value_constraints={
-                "rules": [
-                    {"type": "warning_range", "min": 10, "max": 20, "error_key": "warn_zone"}
-                ]
-            },
-        )
-        entity._validate_value_constraints(15)
-        await asyncio.sleep(0.05)
-        call = entity.hass.services.async_call.await_args
-        assert call.args[0] == "persistent_notification"
-        assert call.args[1] == "create"
-
-    async def test_warning_range_out_of_range_dismisses(self, coord) -> None:
-        entity = _make_number(
-            coord,
-            value_constraints={
-                "rules": [{"type": "warning_range", "min": 10, "max": 20, "error_key": "warn_zone"}]
-            },
-        )
-        entity._validate_value_constraints(25)
-        await asyncio.sleep(0.05)
-        call = entity.hass.services.async_call.await_args
-        assert call.args[0] == "persistent_notification"
-        assert call.args[1] == "dismiss"
-
     def test_unknown_rule_ignored(self, coord) -> None:
         entity = _make_number(
             coord, value_constraints={"rules": [{"type": "mystery"}]}

@@ -91,6 +91,15 @@ read_quantities:
     count: 1
     icon: "mdi:current-ac"
 
+  cumulative_energy:
+    translation_key: "cumulative_energy"
+    address: 30033
+    data_type: "UINT32"
+    unit: "kWh"
+    gain: 1000
+    count: 2
+    icon: "mdi:meter-electric"
+
   temperature:
     translation_key: "temperature"
     address: 30037

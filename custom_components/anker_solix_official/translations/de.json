@@ -61,9 +61,6 @@
     },
     "enable_backup_soc_first": {
       "message": "Diese Funktion erfordert das Aktivieren des Backup-Reserve-Schalters in den Einstellungen der Anker-App."
-    },
-    "power_below_optimal_range": {
-      "message": "Die eingegebene Leistung von {value}W liegt unter dem optimalen Betriebsbereich. Die Regelgenauigkeit kann davon abweichen."
     }
   },
   "entity": {
@@ -266,6 +263,45 @@
           "disconnected": "Ausschalten",
           "connected": "Einschalten"
         }
+      },
+      "primary_total_reactive_power": {
+        "name": "Haupt-CT Gesamt-Blindleistung"
+      },
+      "primary_total_power_factor": {
+        "name": "Haupt-CT Gesamt-Leistungsfaktor"
+      },
+      "secondary_total_reactive_power": {
+        "name": "Sekundär-CT Gesamt-Blindleistung"
+      },
+      "secondary_total_power_factor": {
+        "name": "Sekundär-CT Gesamt-Leistungsfaktor"
+      },
+      "secondary_phase_a_forward_active_energy": {
+        "name": "Sekundär-CT Phase A Netzbezug"
+      },
+      "secondary_phase_b_forward_active_energy": {
+        "name": "Sekundär-CT Phase B Netzbezug"
+      },
+      "secondary_phase_c_forward_active_energy": {
+        "name": "Sekundär-CT Phase C Netzbezug"
+      },
+      "secondary_total_forward_active_energy": {
+        "name": "Sekundär-CT Gesamt-Netzbezug"
+      },
+      "secondary_phase_a_reverse_active_energy": {
+        "name": "Sekundär-CT Phase A Einspeisung"
+      },
+      "secondary_phase_b_reverse_active_energy": {
+        "name": "Sekundär-CT Phase B Einspeisung"
+      },
+      "secondary_phase_c_reverse_active_energy": {
+        "name": "Sekundär-CT Phase C Einspeisung"
+      },
+      "secondary_total_reverse_active_energy": {
+        "name": "Sekundär-CT Gesamt-Einspeisung"
+      },
+      "cumulative_energy": {
+        "name": "Kumulierte Energie"
       }
     },
     "select": {

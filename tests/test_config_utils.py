@@ -1,5 +1,9 @@
 """Unit tests for config_utils: range parsing and device config assembly."""
 
+import json
+from pathlib import Path
+
+import yaml
 from custom_components.anker_solix_official.config_utils import (
     _parse_batch_ranges,
     _parse_range_string,
@@ -266,3 +270,134 @@ class TestParseDeviceConfiguration:
 
         # Assert
         assert data_points == {}
+
+
+METER_CONFIG_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "custom_components"
+    / "anker_solix_official"
+    / "config"
+    / "42bcf12f6663b19b5eaa517f050b6cbf286037eed3c569a5ccae6724c19de64e.yaml"
+)
+
+REQUIREMENT_3671_ADDRESSES = {
+    10635, 10636, 10637, 10638, 10640, 10642, 10644, 10646, 10648,
+    10650, 10652, 10654, 10656, 10658, 10660, 10662, 10664,
+    10666, 10667, 10668, 10669, 10671, 10673, 10675, 10677, 10679,
+    10680, 10682, 10684, 10686, 10688, 10690, 10692, 10694,
+}
+
+NEW_CT_DATA_POINTS = {
+    "primary_total_reactive_power": (10646, "INT32", "W", 1, 2),
+    "primary_total_power_factor": (10648, "INT16", "/", 1000, 1),
+    "secondary_total_reactive_power": (10677, "INT32", "W", 1, 2),
+    "secondary_total_power_factor": (10679, "INT16", "/", 1000, 1),
+    "secondary_phase_a_forward_active_energy": (10680, "UINT32", "kWh", 10, 2),
+    "secondary_phase_b_forward_active_energy": (10682, "UINT32", "kWh", 10, 2),
+    "secondary_phase_c_forward_active_energy": (10684, "UINT32", "kWh", 10, 2),
+    "secondary_total_forward_active_energy": (10686, "UINT32", "kWh", 10, 2),
+    "secondary_phase_a_reverse_active_energy": (10688, "UINT32", "kWh", 10, 2),
+    "secondary_phase_b_reverse_active_energy": (10690, "UINT32", "kWh", 10, 2),
+    "secondary_phase_c_reverse_active_energy": (10692, "UINT32", "kWh", 10, 2),
+    "secondary_total_reverse_active_energy": (10694, "UINT32", "kWh", 10, 2),
+}
+
+
+def _load_meter_config():
+    cfg = yaml.safe_load(METER_CONFIG_PATH.read_text(encoding="utf-8"))
+    return parse_device_configuration(cfg)
+
+
+class TestSmartMeterGen2Requirement3671:
+    """The shipped AE1X0 config must satisfy Coding #3671 (CT group data)."""
+
+    def test_new_ct_data_points_match_protocol_sheet(self) -> None:
+        data_points, _ = _load_meter_config()
+        for key, expected in NEW_CT_DATA_POINTS.items():
+            dp = data_points[key]
+            actual = (
+                dp["address"],
+                dp["data_type"],
+                dp["unit"],
+                dp["gain"],
+                dp["count"],
+            )
+            assert actual == expected, key
+
+    def test_all_requirement_addresses_are_covered(self) -> None:
+        data_points, _ = _load_meter_config()
+        have = {dp["address"] for dp in data_points.values()}
+        assert REQUIREMENT_3671_ADDRESSES <= have
+
+    def test_every_data_point_sits_inside_a_batch_range(self) -> None:
+        data_points, batch_ranges = _load_meter_config()
+        for key, dp in data_points.items():
+            if dp.get("register_type"):
+                continue
+            last = dp["address"] + dp.get("count", 1) - 1
+            inside = any(
+                start <= dp["address"] and last <= end
+                for start, end, _ in batch_ranges
+            )
+            assert inside, key
+
+    def test_every_translation_key_exists_in_all_languages(self) -> None:
+        base = METER_CONFIG_PATH.parents[1]
+        lang_files = [base / "strings.json"] + [
+            base / "translations" / f"{code}.json"
+            for code in ("en", "de", "fr", "nl")
+        ]
+        data_points, _ = _load_meter_config()
+        for lang_file in lang_files:
+            names = set(
+                json.loads(lang_file.read_text(encoding="utf-8"))["entity"]["sensor"]
+            )
+            for key, dp in data_points.items():
+                assert dp.get("translation_key", key) in names, (
+                    lang_file.name,
+                    key,
+                )
+
+
+PLUG_CONFIG_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "custom_components"
+    / "anker_solix_official"
+    / "config"
+    / "575f793986f8d2a7c714eab09c021064533d656b4c56bd9e8c72824e351d3bce.yaml"
+)
+
+
+def _load_plug_config():
+    cfg = yaml.safe_load(PLUG_CONFIG_PATH.read_text(encoding="utf-8"))
+    return parse_device_configuration(cfg)
+
+
+class TestSmartPlugRequirement3669:
+    """The shipped A17X8 config must expose the cumulative energy register."""
+
+    def test_cumulative_energy_matches_protocol_sheet(self) -> None:
+        data_points, _ = _load_plug_config()
+        dp = data_points["cumulative_energy"]
+        actual = (dp["address"], dp["data_type"], dp["unit"], dp["gain"], dp["count"])
+        assert actual == (30033, "UINT32", "kWh", 1000, 2)
+
+    def test_cumulative_energy_sits_inside_a_batch_range(self) -> None:
+        data_points, batch_ranges = _load_plug_config()
+        dp = data_points["cumulative_energy"]
+        last = dp["address"] + dp["count"] - 1
+        assert any(
+            start <= dp["address"] and last <= end for start, end, _ in batch_ranges
+        )
+
+    def test_cumulative_energy_translation_exists_in_all_languages(self) -> None:
+        base = PLUG_CONFIG_PATH.parents[1]
+        lang_files = [base / "strings.json"] + [
+            base / "translations" / f"{code}.json"
+            for code in ("en", "de", "fr", "nl")
+        ]
+        for lang_file in lang_files:
+            names = set(
+                json.loads(lang_file.read_text(encoding="utf-8"))["entity"]["sensor"]
+            )
+            assert "cumulative_energy" in names, lang_file.name

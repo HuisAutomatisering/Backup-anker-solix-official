@@ -672,3 +672,57 @@ class TestExtraStateAttributes:
         assert attrs["additional_sources"] == ["secondary", "tertiary"]
         assert attrs["source_secondary"] == 50
         assert "source_tertiary" not in attrs
+
+
+class TestSmartMeterNewCtDataPointSensors:
+    """Coding #3671: sensor behaviour for the newly added CT-group points."""
+
+    def test_power_factor_gain_1000_gives_three_decimals(
+        self, fake_coordinator
+    ) -> None:
+        fake_coordinator.data = {"primary_total_power_factor": 0.995}
+        entity = _make_sensor(
+            fake_coordinator,
+            "primary_total_power_factor",
+            {"address": 10648, "data_type": "INT16", "unit": "/", "gain": 1000},
+        )
+        assert entity.suggested_display_precision == 3
+        assert entity.native_value == 0.995
+
+    def test_reactive_power_is_measurement(self, fake_coordinator) -> None:
+        entity = _make_sensor(
+            fake_coordinator,
+            "secondary_total_reactive_power",
+            {"address": 10677, "data_type": "INT32", "unit": "W", "gain": 1},
+        )
+        assert entity.device_class == "power"
+        assert entity.state_class == "measurement"
+
+    def test_secondary_energy_is_total_increasing(self, fake_coordinator) -> None:
+        fake_coordinator.data = {"secondary_total_forward_active_energy": 123.4}
+        entity = _make_sensor(
+            fake_coordinator,
+            "secondary_total_forward_active_energy",
+            {"address": 10686, "data_type": "UINT32", "unit": "kWh", "gain": 10},
+        )
+        assert entity.device_class == "energy"
+        assert entity.state_class == "total_increasing"
+        assert entity.native_value == 123.4
+
+
+class TestSmartPlugCumulativeEnergySensor:
+    """Coding #3669: A17X8 plug cumulative energy (register 30033)."""
+
+    def test_plug_cumulative_energy_is_total_increasing(
+        self, fake_coordinator
+    ) -> None:
+        fake_coordinator.data = {"cumulative_energy": 123.456}
+        entity = _make_sensor(
+            fake_coordinator,
+            "cumulative_energy",
+            {"address": 30033, "data_type": "UINT32", "unit": "kWh", "gain": 1000},
+        )
+        assert entity.device_class == "energy"
+        assert entity.state_class == "total_increasing"
+        assert entity.suggested_display_precision == 3
+        assert entity.native_value == 123.456

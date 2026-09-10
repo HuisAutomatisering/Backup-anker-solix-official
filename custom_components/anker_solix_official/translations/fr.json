@@ -61,9 +61,6 @@
     },
     "enable_backup_soc_first": {
       "message": "Cette fonctionnalité nécessite d'activer l'interrupteur de réserve de secours dans les paramètres de l'application Anker."
-    },
-    "power_below_optimal_range": {
-      "message": "La puissance saisie de {value}W est inférieure à la plage de fonctionnement optimale. La précision du contrôle peut être affectée."
     }
   },
   "entity": {
@@ -266,6 +263,45 @@
           "disconnected": "Éteindre",
           "connected": "Allumer"
         }
+      },
+      "primary_total_reactive_power": {
+        "name": "CT principal Puissance réactive totale"
+      },
+      "primary_total_power_factor": {
+        "name": "CT principal Facteur de puissance total"
+      },
+      "secondary_total_reactive_power": {
+        "name": "CT secondaire Puissance réactive totale"
+      },
+      "secondary_total_power_factor": {
+        "name": "CT secondaire Facteur de puissance total"
+      },
+      "secondary_phase_a_forward_active_energy": {
+        "name": "CT secondaire Phase A Consommation"
+      },
+      "secondary_phase_b_forward_active_energy": {
+        "name": "CT secondaire Phase B Consommation"
+      },
+      "secondary_phase_c_forward_active_energy": {
+        "name": "CT secondaire Phase C Consommation"
+      },
+      "secondary_total_forward_active_energy": {
+        "name": "CT secondaire Consommation totale"
+      },
+      "secondary_phase_a_reverse_active_energy": {
+        "name": "CT secondaire Phase A Injection"
+      },
+      "secondary_phase_b_reverse_active_energy": {
+        "name": "CT secondaire Phase B Injection"
+      },
+      "secondary_phase_c_reverse_active_energy": {
+        "name": "CT secondaire Phase C Injection"
+      },
+      "secondary_total_reverse_active_energy": {
+        "name": "CT secondaire Injection totale"
+      },
+      "cumulative_energy": {
+        "name": "Énergie cumulée"
       }
     },
     "select": {

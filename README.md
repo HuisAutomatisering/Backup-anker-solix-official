@@ -124,6 +124,17 @@ Yes. You can add multiple Anker devices in Home Assistant, each configured and c
 
 A: Since the Anker P1 Meter is designed as a plug-and-play meter reader (no electrician required for installation), it does not support the Modbus protocol. For Home Assistant integration, you can use third-party P1 meters such as the HomeWizard P1 or EcoTracker P1.
 
+**Q: How does low input power (e.g., below 100W) affect system operation?**
+
+A: The optimal operating range for the device's input power is generally above 100W. While the device can still operate at extremely low input power, the control accuracy for "power regulation" and "scheduling commands" may slightly decrease. (For example, if you set the discharge power to 50W, the actual output might fluctuate between 40W and 60W). This is a normal physical characteristic of electrical equipment. This deviation will automatically disappear as the input power increases.
+
+**Q: Why is there a discrepancy between the data in the App and the data in HA (Home Assistant)?**
+
+A: This is due to different data sources and does not indicate a device malfunction.
+App Data: Calculated by the cloud server at 5-minute intervals after the "power plant is created".
+HA Data: Raw data fetched directly from the local device hardware's own statistics.
+Because the tracking start times and refresh rates differ, a reasonable discrepancy between the two platforms is completely normal.
+
 For more instructions on using Home Assistant and FAQs, please visit: https://anker-webview-eu.anker.com/home-assistant
 
 ## Data Security

@@ -195,28 +195,28 @@
         "name": "Tension du CT principal Phase 3"
       },
       "primary_phase_a_forward_active_energy": {
-        "name": "CT principal Phase A Consommation"
+        "name": "CT principal Phase A Importation"
       },
       "primary_phase_b_forward_active_energy": {
-        "name": "CT principal Phase B Consommation"
+        "name": "CT principal Phase B Importation"
       },
       "primary_phase_c_forward_active_energy": {
-        "name": "CT principal Phase C Consommation"
+        "name": "CT principal Phase C Importation"
       },
       "primary_total_forward_active_energy": {
-        "name": "CT principal Consommation totale"
+        "name": "CT principal Importation totale"
       },
       "primary_phase_a_reverse_active_energy": {
-        "name": "CT principal Phase A Injection"
+        "name": "CT principal Phase A Exportation"
       },
       "primary_phase_b_reverse_active_energy": {
-        "name": "CT principal Phase B Injection"
+        "name": "CT principal Phase B Exportation"
       },
       "primary_phase_c_reverse_active_energy": {
-        "name": "CT principal Phase C Injection"
+        "name": "CT principal Phase C Exportation"
       },
       "primary_total_reverse_active_energy": {
-        "name": "CT principal Injection totale"
+        "name": "CT principal Exportation totale"
       },
       "secondary_total_active_power": {
         "name": "Puissance active totale du CT secondaire"
@@ -277,28 +277,28 @@
         "name": "CT secondaire Facteur de puissance total"
       },
       "secondary_phase_a_forward_active_energy": {
-        "name": "CT secondaire Phase A Consommation"
+        "name": "CT secondaire Phase A Importation"
       },
       "secondary_phase_b_forward_active_energy": {
-        "name": "CT secondaire Phase B Consommation"
+        "name": "CT secondaire Phase B Importation"
       },
       "secondary_phase_c_forward_active_energy": {
-        "name": "CT secondaire Phase C Consommation"
+        "name": "CT secondaire Phase C Importation"
       },
       "secondary_total_forward_active_energy": {
-        "name": "CT secondaire Consommation totale"
+        "name": "CT secondaire Importation totale"
       },
       "secondary_phase_a_reverse_active_energy": {
-        "name": "CT secondaire Phase A Injection"
+        "name": "CT secondaire Phase A Exportation"
       },
       "secondary_phase_b_reverse_active_energy": {
-        "name": "CT secondaire Phase B Injection"
+        "name": "CT secondaire Phase B Exportation"
       },
       "secondary_phase_c_reverse_active_energy": {
-        "name": "CT secondaire Phase C Injection"
+        "name": "CT secondaire Phase C Exportation"
       },
       "secondary_total_reverse_active_energy": {
-        "name": "CT secondaire Injection totale"
+        "name": "CT secondaire Exportation totale"
       },
       "cumulative_energy": {
         "name": "Énergie cumulée"

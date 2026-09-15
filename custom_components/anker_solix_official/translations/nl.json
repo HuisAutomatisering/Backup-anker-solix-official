@@ -195,28 +195,28 @@
         "name": "Hoofd-CT Fase 3 spanning"
       },
       "primary_phase_a_forward_active_energy": {
-        "name": "Hoofd-CT Fase A Verbruik"
+        "name": "Hoofd-CT Fase A Import"
       },
       "primary_phase_b_forward_active_energy": {
-        "name": "Hoofd-CT Fase B Verbruik"
+        "name": "Hoofd-CT Fase B Import"
       },
       "primary_phase_c_forward_active_energy": {
-        "name": "Hoofd-CT Fase C Verbruik"
+        "name": "Hoofd-CT Fase C Import"
       },
       "primary_total_forward_active_energy": {
-        "name": "Hoofd-CT Totaal verbruik"
+        "name": "Hoofd-CT Totale import"
       },
       "primary_phase_a_reverse_active_energy": {
-        "name": "Hoofd-CT Fase A Teruglevering"
+        "name": "Hoofd-CT Fase A Export"
       },
       "primary_phase_b_reverse_active_energy": {
-        "name": "Hoofd-CT Fase B Teruglevering"
+        "name": "Hoofd-CT Fase B Export"
       },
       "primary_phase_c_reverse_active_energy": {
-        "name": "Hoofd-CT Fase C Teruglevering"
+        "name": "Hoofd-CT Fase C Export"
       },
       "primary_total_reverse_active_energy": {
-        "name": "Hoofd-CT Totale teruglevering"
+        "name": "Hoofd-CT Totale export"
       },
       "secondary_total_active_power": {
         "name": "Totale actieve vermogen van de secundaire CT"
@@ -277,28 +277,28 @@
         "name": "Secundaire CT Totale arbeidsfactor"
       },
       "secondary_phase_a_forward_active_energy": {
-        "name": "Secundaire CT Fase A Verbruik"
+        "name": "Secundaire CT Fase A Import"
       },
       "secondary_phase_b_forward_active_energy": {
-        "name": "Secundaire CT Fase B Verbruik"
+        "name": "Secundaire CT Fase B Import"
       },
       "secondary_phase_c_forward_active_energy": {
-        "name": "Secundaire CT Fase C Verbruik"
+        "name": "Secundaire CT Fase C Import"
       },
       "secondary_total_forward_active_energy": {
-        "name": "Secundaire CT Totaal verbruik"
+        "name": "Secundaire CT Totale import"
       },
       "secondary_phase_a_reverse_active_energy": {
-        "name": "Secundaire CT Fase A Teruglevering"
+        "name": "Secundaire CT Fase A Export"
       },
       "secondary_phase_b_reverse_active_energy": {
-        "name": "Secundaire CT Fase B Teruglevering"
+        "name": "Secundaire CT Fase B Export"
       },
       "secondary_phase_c_reverse_active_energy": {
-        "name": "Secundaire CT Fase C Teruglevering"
+        "name": "Secundaire CT Fase C Export"
       },
       "secondary_total_reverse_active_energy": {
-        "name": "Secundaire CT Totale teruglevering"
+        "name": "Secundaire CT Totale export"
       },
       "cumulative_energy": {
         "name": "Cumulatieve energie"

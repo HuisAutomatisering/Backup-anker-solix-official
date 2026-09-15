@@ -195,28 +195,28 @@
         "name": "Haupt-CT Phase 3 Spannung"
       },
       "primary_phase_a_forward_active_energy": {
-        "name": "Haupt-CT Phase A Netzbezug"
+        "name": "Haupt-CT Phase A Import"
       },
       "primary_phase_b_forward_active_energy": {
-        "name": "Haupt-CT Phase B Netzbezug"
+        "name": "Haupt-CT Phase B Import"
       },
       "primary_phase_c_forward_active_energy": {
-        "name": "Haupt-CT Phase C Netzbezug"
+        "name": "Haupt-CT Phase C Import"
       },
       "primary_total_forward_active_energy": {
-        "name": "Haupt-CT Gesamt-Netzbezug"
+        "name": "Haupt-CT Gesamt-Import"
       },
       "primary_phase_a_reverse_active_energy": {
-        "name": "Haupt-CT Phase A Einspeisung"
+        "name": "Haupt-CT Phase A Export"
       },
       "primary_phase_b_reverse_active_energy": {
-        "name": "Haupt-CT Phase B Einspeisung"
+        "name": "Haupt-CT Phase B Export"
       },
       "primary_phase_c_reverse_active_energy": {
-        "name": "Haupt-CT Phase C Einspeisung"
+        "name": "Haupt-CT Phase C Export"
       },
       "primary_total_reverse_active_energy": {
-        "name": "Haupt-CT Gesamt-Einspeisung"
+        "name": "Haupt-CT Gesamt-Export"
       },
       "secondary_total_active_power": {
         "name": "Sekundäre CT-Gesamtwirkleistung"
@@ -277,28 +277,28 @@
         "name": "Sekundär-CT Gesamt-Leistungsfaktor"
       },
       "secondary_phase_a_forward_active_energy": {
-        "name": "Sekundär-CT Phase A Netzbezug"
+        "name": "Sekundär-CT Phase A Import"
       },
       "secondary_phase_b_forward_active_energy": {
-        "name": "Sekundär-CT Phase B Netzbezug"
+        "name": "Sekundär-CT Phase B Import"
       },
       "secondary_phase_c_forward_active_energy": {
-        "name": "Sekundär-CT Phase C Netzbezug"
+        "name": "Sekundär-CT Phase C Import"
       },
       "secondary_total_forward_active_energy": {
-        "name": "Sekundär-CT Gesamt-Netzbezug"
+        "name": "Sekundär-CT Gesamt-Import"
       },
       "secondary_phase_a_reverse_active_energy": {
-        "name": "Sekundär-CT Phase A Einspeisung"
+        "name": "Sekundär-CT Phase A Export"
       },
       "secondary_phase_b_reverse_active_energy": {
-        "name": "Sekundär-CT Phase B Einspeisung"
+        "name": "Sekundär-CT Phase B Export"
       },
       "secondary_phase_c_reverse_active_energy": {
-        "name": "Sekundär-CT Phase C Einspeisung"
+        "name": "Sekundär-CT Phase C Export"
       },
       "secondary_total_reverse_active_energy": {
-        "name": "Sekundär-CT Gesamt-Einspeisung"
+        "name": "Sekundär-CT Gesamt-Export"
       },
       "cumulative_energy": {
         "name": "Kumulierte Energie"

@@ -131,8 +131,10 @@ A: The optimal operating range for the device's input power is generally above 1
 **Q: Why is there a discrepancy between the data in the App and the data in HA (Home Assistant)?**
 
 A: This is due to different data sources and does not indicate a device malfunction.
-App Data: Calculated by the cloud server at 5-minute intervals after the "power plant is created".
-HA Data: Raw data fetched directly from the local device hardware's own statistics.
+
+- **App Data**: Calculated by the cloud server at 5-minute intervals after the "power plant is created".
+- **HA Data**: Raw data fetched directly from the local device hardware's own statistics.
+
 Because the tracking start times and refresh rates differ, a reasonable discrepancy between the two platforms is completely normal.
 
 For more instructions on using Home Assistant and FAQs, please visit: https://anker-webview-eu.anker.com/home-assistant

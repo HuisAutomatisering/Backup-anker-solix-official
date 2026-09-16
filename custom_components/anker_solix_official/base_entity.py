@@ -4,13 +4,12 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import Any, Callable, Coroutine, TYPE_CHECKING
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
 
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.translation import async_get_translations
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN, WRITE_CONDITION_REVERT_DELAY
@@ -26,7 +25,7 @@ class AnkerSolixBaseEntity(CoordinatorEntity):
 
     def __init__(
         self,
-        coordinator: "AnkerSolixOfficialCoordinator",
+        coordinator: AnkerSolixOfficialCoordinator,
         entity_key: str,
         entity_config: dict[str, Any],
     ) -> None:
@@ -38,9 +37,9 @@ class AnkerSolixBaseEntity(CoordinatorEntity):
             entity_config: Entity configuration dict
         """
         super().__init__(coordinator)
-        
+
         self._entity_key = entity_key
-        
+
         self._config = entity_config
         self._register_address = entity_config.get("address")
 
@@ -56,8 +55,13 @@ class AnkerSolixBaseEntity(CoordinatorEntity):
 
     @property
     def available(self) -> bool:
-        """Return if entity is available."""
-        if not self.coordinator.is_connected():
+        """Return if entity is available.
+
+        Delegates to CoordinatorEntity, i.e. to `last_update_success`, so
+        availability follows the outcome of the latest refresh instead of a
+        separately tracked connection flag (issue #117).
+        """
+        if not super().available:
             return False
 
         self._log_unreadable_register(self._register_address)
@@ -254,7 +258,7 @@ class AnkerSolixBaseEntity(CoordinatorEntity):
         # Defensive check: if target is None, treat as pass (no condition to check)
         if target is None:
             return True
-        
+
         # For list-based operators, ensure target is iterable
         if operator in ("in", "not_in"):
             if not isinstance(target, (list, tuple, set)):
@@ -264,14 +268,14 @@ class AnkerSolixBaseEntity(CoordinatorEntity):
                 if operator == "in"
                 else not any(abs(value - float(t)) < 0.5 for t in target)
             )
-        
+
         # For numeric comparisons, ensure target is numeric
         if not isinstance(target, (int, float)):
             try:
                 target = float(target)
             except (ValueError, TypeError):
                 return True
-        
+
         if operator == "eq":
             if isinstance(target, int) or (isinstance(target, float) and target == int(target)):
                 return abs(value - target) < 0.5
@@ -288,7 +292,7 @@ class AnkerSolixBaseEntity(CoordinatorEntity):
             return value < target
         elif operator == "lte":
             return value <= target
-        
+
         return True
 
     async def _revert_ui_state(self, user_value: Any) -> None:
@@ -339,151 +343,39 @@ class AnkerSolixBaseEntity(CoordinatorEntity):
             translation_key=hint_key or "write_condition_not_met",
         )
 
-    async def _show_soft_warning(
-        self,
-        warning_key: str,
-        placeholders: dict[str, str] | None = None,
-    ) -> None:
-        """Show a non-blocking warning notification.
-
-        Uses persistent_notification to display a warning in the Notifications
-        panel (bell icon in sidebar). Does not block the operation.
-
-        Args:
-            warning_key: Translation key for the warning message.
-            placeholders: Optional dict of placeholder values for the message.
-        """
-        if not self.hass:
-            _LOGGER.warning("Cannot show soft warning: hass not available")
-            return
-
-        # hass.data has no built-in "translations" key; the official way to
-        # resolve a translated exceptions.*.message string at runtime is via
-        # the translation helper, using the user's configured language.
-        language = self.hass.config.language
-        localize_key = f"component.{DOMAIN}.exceptions.{warning_key}.message"
-        try:
-            translations = await async_get_translations(
-                self.hass, language, "exceptions", {DOMAIN}
-            )
-        except Exception as err:
-            _LOGGER.debug(
-                "Failed to load translations for soft warning %s: %s", warning_key, err
-            )
-            translations = {}
-        message = translations.get(localize_key, warning_key)
-
-        if placeholders:
-            for key, value in placeholders.items():
-                message = message.replace(f"{{{key}}}", str(value))
-
-        notification_id = f"{DOMAIN}_{warning_key}_{self._entity_key}"
-        await self.hass.services.async_call(
-            "persistent_notification",
-            "create",
-            {
-                "message": message,
-                "title": "Anker SOLIX Warning",
-                "notification_id": notification_id,
-            },
-        )
-
-        _LOGGER.info(
-            "Soft warning shown for %s: %s (placeholders: %s)",
-            self._entity_key,
-            warning_key,
-            placeholders,
-        )
-
-    async def _dismiss_soft_warning(self, warning_key: str) -> None:
-        """Dismiss a previously shown soft warning notification, if any.
-
-        Mirrors the notification_id built in _show_soft_warning, so any
-        entity/rule combination using that method to create a warning can
-        reuse this to clear it once the triggering condition no longer
-        holds. Safe to call unconditionally: dismissing a notification_id
-        that was never created (or already dismissed) is a silent no-op.
-
-        Args:
-            warning_key: Same key used when the warning was created.
-        """
-        if not self.hass:
-            return
-
-        notification_id = f"{DOMAIN}_{warning_key}_{self._entity_key}"
-        await self.hass.services.async_call(
-            "persistent_notification",
-            "dismiss",
-            {"notification_id": notification_id},
-        )
-
 
 
 async def async_setup_entities_with_retry(
     hass: HomeAssistant,
-    coordinator: "AnkerSolixOfficialCoordinator",
+    coordinator: AnkerSolixOfficialCoordinator,
     async_add_entities: AddEntitiesCallback,
     entity_filter: Callable[[str, dict], bool],
-    entity_factory: Callable[["AnkerSolixOfficialCoordinator", str, dict], Any],
+    entity_factory: Callable[[AnkerSolixOfficialCoordinator, str, dict], Any],
     platform_name: str,
 ) -> None:
-    """Set up entities with retry logic for delayed configuration.
+    """Create this platform's entities from the coordinator's device config.
 
-    Args:
-        hass: Home Assistant instance
-        coordinator: Data coordinator
-        async_add_entities: Callback to add entities
-        entity_filter: Function to filter which configs to create entities for
-        entity_factory: Function to create entity from config
-        platform_name: Platform name for logging
+    The coordinator loads the device configuration during its first refresh, before
+    `async_config_entry_first_refresh` returns and therefore before platforms are
+    forwarded, so the configuration is always present here. There is deliberately
+    no deferred/retry path: the previous one registered a coordinator listener
+    that outlived unload and could add entities to a torn-down platform, which is
+    what produced the duplicate unique_id errors in issue #117.
     """
-    # Try to get configuration
-    data_points = await coordinator.ensure_config_ready()
+    data_points = await coordinator.get_device_data_points()
     if not data_points:
-        data_points = await coordinator.get_device_data_points()
-
-    if data_points:
-        # Configuration available, create entities immediately
-        entities = [
-            entity_factory(coordinator, key, config)
-            for key, config in data_points.items()
-            if entity_filter(key, config)
-        ]
-        if entities:
-            async_add_entities(entities)
-            _LOGGER.debug("Added %d %s entities", len(entities), platform_name)
+        _LOGGER.warning(
+            "No device configuration available for %s, no %s entities created",
+            coordinator.ip_address,
+            platform_name,
+        )
         return
 
-    # Configuration not ready, set up deferred loading
-    _LOGGER.debug(
-        "No device configuration available for %s, deferring %s setup",
-        coordinator.ip_address,
-        platform_name,
-    )
-
-    state = {"added": False}
-    remove_token: dict[str, Callable | None] = {"fn": None}
-
-    async def _try_add_entities() -> None:
-        if state["added"]:
-            return
-        dps = await coordinator.get_device_data_points()
-        if not dps:
-            return
-        entities = [
-            entity_factory(coordinator, key, config)
-            for key, config in dps.items()
-            if entity_filter(key, config)
-        ]
-        if entities:
-            async_add_entities(entities)
-            state["added"] = True
-            _LOGGER.debug("Deferred setup: added %d %s entities", len(entities), platform_name)
-            if remove_token["fn"]:
-                remove_token["fn"]()
-
-    def _listener() -> None:
-        coordinator.hass.async_create_task(_try_add_entities())
-
-    remove_token["fn"] = coordinator.async_add_listener(_listener)
-    await _try_add_entities()
+    entities = [
+        entity_factory(coordinator, key, config)
+        for key, config in data_points.items()
+        if entity_filter(key, config)
+    ]
+    if entities:
+        async_add_entities(entities)
+        _LOGGER.debug("Added %d %s entities", len(entities), platform_name)

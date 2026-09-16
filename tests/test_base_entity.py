@@ -13,10 +13,9 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
-from pytest_homeassistant_custom_component.common import MockConfigEntry
-
 from custom_components.anker_solix_official.base_entity import AnkerSolixBaseEntity
 from custom_components.anker_solix_official.const import DOMAIN
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 
 class _ConcreteEntity(AnkerSolixBaseEntity):
@@ -31,12 +30,12 @@ class _FakeCoordinator:
         self.entry = entry
         self.device_info = {"model": "Solarbank Max"}
         self.data: dict[str, Any] | None = {}
-        self._connected = True
+        self.last_update_success = True
         self._unavailable_registers: set[int] = set()
         self._protected_values: dict[str, tuple[float, Any]] = {}
 
     def is_connected(self) -> bool:
-        return self._connected
+        return self.last_update_success
 
     def is_register_available(self, address: int) -> bool:
         return address not in self._unavailable_registers
@@ -112,17 +111,19 @@ class TestInit:
 
 
 class TestAvailable:
-    """available() connection-gate property."""
+    """available() gate derived from the coordinator's last refresh outcome."""
 
-    def test_disconnected_coordinator_makes_entity_unavailable(
+    def test_failed_last_refresh_makes_entity_unavailable(
         self, fake_coordinator
     ) -> None:
-        fake_coordinator._connected = False
+        fake_coordinator.last_update_success = False
         entity = _make_entity(fake_coordinator)
         assert entity.available is False
 
-    def test_connected_coordinator_makes_entity_available(self, fake_coordinator) -> None:
-        fake_coordinator._connected = True
+    def test_successful_last_refresh_makes_entity_available(
+        self, fake_coordinator
+    ) -> None:
+        fake_coordinator.last_update_success = True
         entity = _make_entity(fake_coordinator)
         assert entity.available is True
 
@@ -132,7 +133,7 @@ class TestAvailable:
         # Arrange: a register read failure must NEVER hide the entity --
         # only the capability mask decides visibility, per the documented
         # design in _log_unreadable_register.
-        fake_coordinator._connected = True
+        fake_coordinator.last_update_success = True
         fake_coordinator._unavailable_registers.add(100)
         entity = _make_entity(fake_coordinator, "power", {"address": 100})
 

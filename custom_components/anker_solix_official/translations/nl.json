@@ -61,9 +61,6 @@
     },
     "enable_backup_soc_first": {
       "message": "Deze functie vereist het inschakelen van de back-upreserveschakelaar in de instellingen van de Anker-app."
-    },
-    "power_below_optimal_range": {
-      "message": "Het ingevoerde vermogen van {value}W ligt onder het optimale werkbereik. De regelnauwkeurigheid kan hierdoor afwijken."
     }
   },
   "entity": {
@@ -197,6 +194,30 @@
       "primary_phase_3_voltage": {
         "name": "Hoofd-CT Fase 3 spanning"
       },
+      "primary_phase_a_forward_active_energy": {
+        "name": "Hoofd-CT Fase A Import"
+      },
+      "primary_phase_b_forward_active_energy": {
+        "name": "Hoofd-CT Fase B Import"
+      },
+      "primary_phase_c_forward_active_energy": {
+        "name": "Hoofd-CT Fase C Import"
+      },
+      "primary_total_forward_active_energy": {
+        "name": "Hoofd-CT Totale import"
+      },
+      "primary_phase_a_reverse_active_energy": {
+        "name": "Hoofd-CT Fase A Export"
+      },
+      "primary_phase_b_reverse_active_energy": {
+        "name": "Hoofd-CT Fase B Export"
+      },
+      "primary_phase_c_reverse_active_energy": {
+        "name": "Hoofd-CT Fase C Export"
+      },
+      "primary_total_reverse_active_energy": {
+        "name": "Hoofd-CT Totale export"
+      },
       "secondary_total_active_power": {
         "name": "Totale actieve vermogen van de secundaire CT"
       },
@@ -242,6 +263,45 @@
           "disconnected": "Uitschakelen",
           "connected": "Inschakelen"
         }
+      },
+      "primary_total_reactive_power": {
+        "name": "Hoofd-CT Totaal blindvermogen"
+      },
+      "primary_total_power_factor": {
+        "name": "Hoofd-CT Totale arbeidsfactor"
+      },
+      "secondary_total_reactive_power": {
+        "name": "Secundaire CT Totaal blindvermogen"
+      },
+      "secondary_total_power_factor": {
+        "name": "Secundaire CT Totale arbeidsfactor"
+      },
+      "secondary_phase_a_forward_active_energy": {
+        "name": "Secundaire CT Fase A Import"
+      },
+      "secondary_phase_b_forward_active_energy": {
+        "name": "Secundaire CT Fase B Import"
+      },
+      "secondary_phase_c_forward_active_energy": {
+        "name": "Secundaire CT Fase C Import"
+      },
+      "secondary_total_forward_active_energy": {
+        "name": "Secundaire CT Totale import"
+      },
+      "secondary_phase_a_reverse_active_energy": {
+        "name": "Secundaire CT Fase A Export"
+      },
+      "secondary_phase_b_reverse_active_energy": {
+        "name": "Secundaire CT Fase B Export"
+      },
+      "secondary_phase_c_reverse_active_energy": {
+        "name": "Secundaire CT Fase C Export"
+      },
+      "secondary_total_reverse_active_energy": {
+        "name": "Secundaire CT Totale export"
+      },
+      "cumulative_energy": {
+        "name": "Cumulatieve energie"
       }
     },
     "select": {

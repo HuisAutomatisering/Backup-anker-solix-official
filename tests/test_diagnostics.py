@@ -3,19 +3,18 @@
 from __future__ import annotations
 
 import pytest
-from pytest_homeassistant_custom_component.common import MockConfigEntry
-
 from custom_components.anker_solix_official.const import DOMAIN
 from custom_components.anker_solix_official.diagnostics import (
     async_get_config_entry_diagnostics,
 )
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 
 class _FakeCoordinator:
     """Minimal stand-in exposing only the attributes diagnostics.py reads."""
 
     def __init__(self) -> None:
-        self._status = "connected"
+        self.last_update_success = True
         self._consecutive_failures = 0
         self._ever_connected = True
         self._initial_mode_sent = True
@@ -47,7 +46,7 @@ class TestAsyncGetConfigEntryDiagnostics:
         result = await async_get_config_entry_diagnostics(hass, entry)
 
         # Assert
-        assert result["connection"]["status"] == "connected"
+        assert result["connection"]["last_update_success"] is True
         assert result["connection"]["consecutive_failures"] == 0
         assert result["connection"]["ever_connected"] is True
         assert result["connection"]["initial_mode_sent"] is True

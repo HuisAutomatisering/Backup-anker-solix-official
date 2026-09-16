@@ -7,20 +7,18 @@ import logging
 from typing import Any
 
 from homeassistant.components.number import NumberEntity, NumberMode
-from homeassistant.exceptions import ServiceValidationError
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers.dispatcher import (
     async_dispatcher_connect,
     async_dispatcher_send,
 )
-from homeassistant.const import ATTR_ENTITY_ID
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+from .base_entity import AnkerSolixBaseEntity, async_setup_entities_with_retry
 from .const import DOMAIN, WRITE_CONDITION_REVERT_DELAY
 from .coordinator import AnkerSolixOfficialCoordinator
-from .base_entity import AnkerSolixBaseEntity, async_setup_entities_with_retry
 
 # Signal for mutual exclusion updates
 SIGNAL_MUTUAL_EXCLUSION_UPDATE = f"{DOMAIN}_mutual_exclusion_update"
@@ -185,11 +183,8 @@ class ModbusLocalDeviceNumber(AnkerSolixBaseEntity, NumberEntity):
     @property
     def available(self) -> bool:
         """Return if entity is available."""
-        # First check base availability (coordinator connected)
-        if not self.coordinator.is_connected():
+        if not super().available:
             return False
-
-        self._log_unreadable_register(self._register_address)
 
         if not self._is_capability_supported():
             return False
@@ -351,20 +346,20 @@ class ModbusLocalDeviceNumber(AnkerSolixBaseEntity, NumberEntity):
 
     def _get_soc_entity_value(self, entity_key: str) -> float | None:
         """Get current value of a SOC entity for validation.
-        
+
         Checks user selection first (for recently set values),
         then falls back to coordinator data (for device-read values).
         """
         user_value = self.coordinator.get_user_selection(entity_key)
         if user_value is not None:
             return float(user_value)
-        
+
         if self.coordinator.data and entity_key in self.coordinator.data:
             try:
                 return float(self.coordinator.data[entity_key])
             except (ValueError, TypeError):
                 pass
-        
+
         return None
 
     def _validate_soc_constraints(self, value: float, validation_config: dict) -> None:
@@ -458,8 +453,6 @@ class ModbusLocalDeviceNumber(AnkerSolixBaseEntity, NumberEntity):
         从 YAML 配置中读取 value_constraints.rules，逐条检查。
         当前支持的规则类型：
           - forbidden_range: 禁止某个数值范围 [min, max]（含边界），命中时阻断写入
-          - warning_range: 数值范围 [min, max]（含边界），命中时不阻断写入，仅弹出非阻塞警告通知；
-            值离开该范围时自动 dismiss 对应通知，无需额外代码即可复用于任何 number 字段
 
         未来可扩展：must_be_multiple_of / forbidden_values / allowed_ranges / condition 等，
         只需在此方法中增加对应的 _check_xxx 分支即可，无需修改业务代码。
@@ -489,25 +482,6 @@ class ModbusLocalDeviceNumber(AnkerSolixBaseEntity, NumberEntity):
                                 "allowed_max": str(allowed_max),
                                 "value": str(int(value)),
                             },
-                        )
-            elif rule_type == "warning_range":
-                min_val = rule.get("min")
-                max_val = rule.get("max")
-                if min_val is not None and max_val is not None:
-                    if min_val <= value <= max_val:
-                        self.hass.async_create_task(
-                            self._show_soft_warning(
-                                warning_key=error_key,
-                                placeholders={
-                                    "warning_min": str(int(min_val)),
-                                    "warning_max": str(int(max_val)),
-                                    "value": str(int(value)),
-                                },
-                            )
-                        )
-                    else:
-                        self.hass.async_create_task(
-                            self._dismiss_soft_warning(warning_key=error_key)
                         )
             else:
                 _LOGGER.debug(
@@ -602,7 +576,7 @@ class ModbusLocalDeviceNumber(AnkerSolixBaseEntity, NumberEntity):
         if soc_validation:
             try:
                 self._validate_soc_constraints(value, soc_validation)
-            except ServiceValidationError as err:
+            except ServiceValidationError:
                 # SOC validation failed, use same UI revert mechanism as write_condition
                 await self._revert_ui_state(value)
                 raise
@@ -865,10 +839,10 @@ class ModbusLocalDeviceNumber(AnkerSolixBaseEntity, NumberEntity):
                 self.async_write_ha_state()
             return
 
-        is_protected, protected_value = self.coordinator.get_protected_value(
+        is_protected, _ = self.coordinator.get_protected_value(
             self._entity_key
         )
-        
+
         if is_protected:
             # Write protection active: keep user's value, just update availability
             self.async_write_ha_state()

@@ -10,9 +10,9 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+from .base_entity import AnkerSolixBaseEntity, async_setup_entities_with_retry
 from .const import DOMAIN
 from .coordinator import AnkerSolixOfficialCoordinator
-from .base_entity import AnkerSolixBaseEntity, async_setup_entities_with_retry
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -127,10 +127,8 @@ class ModbusLocalDeviceSelect(AnkerSolixBaseEntity, SelectEntity):
 
         Supports visibility_bit for bit-based visibility check.
         """
-        if not self.coordinator.is_connected():
+        if not super().available:
             return False
-
-        self._log_unreadable_register(self._register_address)
 
         visibility_entity = self._config.get("visibility_entity")
         if visibility_entity:

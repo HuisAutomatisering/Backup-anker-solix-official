@@ -17,8 +17,8 @@ product_info:
     "DNSM": "Anker SOLIX Smart Meter Gen 2"
 
 batch_read_ranges:
-  - 10620-10646
-  - 10666-10677
+  - 10620-10647
+  - 10648-10695
   - 10696-10712
 
 # =======================================================================
@@ -77,6 +77,24 @@ read_quantities:
     unit: "W"
     gain: 1
     count: 2
+    icon: "mdi:flash"
+
+  primary_total_reactive_power:
+    translation_key: "primary_total_reactive_power"
+    address: 10646
+    data_type: "INT32"
+    unit: "W"
+    gain: 1
+    count: 2
+    icon: "mdi:flash"
+
+  primary_total_power_factor:
+    translation_key: "primary_total_power_factor"
+    address: 10648
+    data_type: "INT16"
+    unit: "/"
+    gain: 1000
+    count: 1
     icon: "mdi:flash"
 
   primary_phase_1_active_power:
@@ -160,6 +178,78 @@ read_quantities:
     count: 1
     icon: "mdi:flash"
 
+  primary_phase_a_forward_active_energy:
+    translation_key: "primary_phase_a_forward_active_energy"
+    address: 10650
+    data_type: "UINT32"
+    unit: "kWh"
+    gain: 10
+    count: 2
+    icon: "mdi:meter-electric"
+
+  primary_phase_b_forward_active_energy:
+    translation_key: "primary_phase_b_forward_active_energy"
+    address: 10652
+    data_type: "UINT32"
+    unit: "kWh"
+    gain: 10
+    count: 2
+    icon: "mdi:meter-electric"
+
+  primary_phase_c_forward_active_energy:
+    translation_key: "primary_phase_c_forward_active_energy"
+    address: 10654
+    data_type: "UINT32"
+    unit: "kWh"
+    gain: 10
+    count: 2
+    icon: "mdi:meter-electric"
+
+  primary_total_forward_active_energy:
+    translation_key: "primary_total_forward_active_energy"
+    address: 10656
+    data_type: "UINT32"
+    unit: "kWh"
+    gain: 10
+    count: 2
+    icon: "mdi:meter-electric"
+
+  primary_phase_a_reverse_active_energy:
+    translation_key: "primary_phase_a_reverse_active_energy"
+    address: 10658
+    data_type: "UINT32"
+    unit: "kWh"
+    gain: 10
+    count: 2
+    icon: "mdi:meter-electric"
+
+  primary_phase_b_reverse_active_energy:
+    translation_key: "primary_phase_b_reverse_active_energy"
+    address: 10660
+    data_type: "UINT32"
+    unit: "kWh"
+    gain: 10
+    count: 2
+    icon: "mdi:meter-electric"
+
+  primary_phase_c_reverse_active_energy:
+    translation_key: "primary_phase_c_reverse_active_energy"
+    address: 10662
+    data_type: "UINT32"
+    unit: "kWh"
+    gain: 10
+    count: 2
+    icon: "mdi:meter-electric"
+
+  primary_total_reverse_active_energy:
+    translation_key: "primary_total_reverse_active_energy"
+    address: 10664
+    data_type: "UINT32"
+    unit: "kWh"
+    gain: 10
+    count: 2
+    icon: "mdi:meter-electric"
+
   # =======================================================================
   # Secondary CT Data (CT Group 2)
   # =======================================================================
@@ -170,6 +260,24 @@ read_quantities:
     unit: "W"
     gain: 1
     count: 2
+    icon: "mdi:flash"
+
+  secondary_total_reactive_power:
+    translation_key: "secondary_total_reactive_power"
+    address: 10677
+    data_type: "INT32"
+    unit: "W"
+    gain: 1
+    count: 2
+    icon: "mdi:flash"
+
+  secondary_total_power_factor:
+    translation_key: "secondary_total_power_factor"
+    address: 10679
+    data_type: "INT16"
+    unit: "/"
+    gain: 1000
+    count: 1
     icon: "mdi:flash"
 
   secondary_phase_1_active_power:
@@ -252,3 +360,75 @@ read_quantities:
     gain: 10
     count: 1
     icon: "mdi:flash"
+
+  secondary_phase_a_forward_active_energy:
+    translation_key: "secondary_phase_a_forward_active_energy"
+    address: 10680
+    data_type: "UINT32"
+    unit: "kWh"
+    gain: 10
+    count: 2
+    icon: "mdi:meter-electric"
+
+  secondary_phase_b_forward_active_energy:
+    translation_key: "secondary_phase_b_forward_active_energy"
+    address: 10682
+    data_type: "UINT32"
+    unit: "kWh"
+    gain: 10
+    count: 2
+    icon: "mdi:meter-electric"
+
+  secondary_phase_c_forward_active_energy:
+    translation_key: "secondary_phase_c_forward_active_energy"
+    address: 10684
+    data_type: "UINT32"
+    unit: "kWh"
+    gain: 10
+    count: 2
+    icon: "mdi:meter-electric"
+
+  secondary_total_forward_active_energy:
+    translation_key: "secondary_total_forward_active_energy"
+    address: 10686
+    data_type: "UINT32"
+    unit: "kWh"
+    gain: 10
+    count: 2
+    icon: "mdi:meter-electric"
+
+  secondary_phase_a_reverse_active_energy:
+    translation_key: "secondary_phase_a_reverse_active_energy"
+    address: 10688
+    data_type: "UINT32"
+    unit: "kWh"
+    gain: 10
+    count: 2
+    icon: "mdi:meter-electric"
+
+  secondary_phase_b_reverse_active_energy:
+    translation_key: "secondary_phase_b_reverse_active_energy"
+    address: 10690
+    data_type: "UINT32"
+    unit: "kWh"
+    gain: 10
+    count: 2
+    icon: "mdi:meter-electric"
+
+  secondary_phase_c_reverse_active_energy:
+    translation_key: "secondary_phase_c_reverse_active_energy"
+    address: 10692
+    data_type: "UINT32"
+    unit: "kWh"
+    gain: 10
+    count: 2
+    icon: "mdi:meter-electric"
+
+  secondary_total_reverse_active_energy:
+    translation_key: "secondary_total_reverse_active_energy"
+    address: 10694
+    data_type: "UINT32"
+    unit: "kWh"
+    gain: 10
+    count: 2
+    icon: "mdi:meter-electric"

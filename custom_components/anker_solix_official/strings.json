@@ -206,6 +206,76 @@
           "disconnected": "Turn Off",
           "connected": "Turn On"
         }
+      },
+      "primary_phase_a_forward_active_energy": {
+        "name": "Main CT Phase A Import"
+      },
+      "primary_phase_b_forward_active_energy": {
+        "name": "Main CT Phase B Import"
+      },
+      "primary_phase_c_forward_active_energy": {
+        "name": "Main CT Phase C Import"
+      },
+      "primary_total_forward_active_energy": {
+        "name": "Main CT Total Import"
+      },
+      "primary_phase_a_reverse_active_energy": {
+        "name": "Main CT Phase A Export"
+      },
+      "primary_phase_b_reverse_active_energy": {
+        "name": "Main CT Phase B Export"
+      },
+      "primary_phase_c_reverse_active_energy": {
+        "name": "Main CT Phase C Export"
+      },
+      "primary_total_reverse_active_energy": {
+        "name": "Main CT Total Export"
+      },
+      "primary_total_reactive_power": {
+        "name": "Main CT Total Reactive Power"
+      },
+      "primary_total_power_factor": {
+        "name": "Main CT Total Power Factor"
+      },
+      "secondary_total_reactive_power": {
+        "name": "Secondary CT Total Reactive Power"
+      },
+      "secondary_total_power_factor": {
+        "name": "Secondary CT Total Power Factor"
+      },
+      "secondary_phase_a_forward_active_energy": {
+        "name": "Secondary CT Phase A Import"
+      },
+      "secondary_phase_b_forward_active_energy": {
+        "name": "Secondary CT Phase B Import"
+      },
+      "secondary_phase_c_forward_active_energy": {
+        "name": "Secondary CT Phase C Import"
+      },
+      "secondary_total_forward_active_energy": {
+        "name": "Secondary CT Total Import"
+      },
+      "secondary_phase_a_reverse_active_energy": {
+        "name": "Secondary CT Phase A Export"
+      },
+      "secondary_phase_b_reverse_active_energy": {
+        "name": "Secondary CT Phase B Export"
+      },
+      "secondary_phase_c_reverse_active_energy": {
+        "name": "Secondary CT Phase C Export"
+      },
+      "secondary_total_reverse_active_energy": {
+        "name": "Secondary CT Total Export"
+      },
+      "backup_soc_enable": {
+        "name": "Backup SOC Enable",
+        "state": {
+          "disabled": "Disabled",
+          "enabled": "Enabled"
+        }
+      },
+      "cumulative_energy": {
+        "name": "Cumulative Energy"
       }
     },
     "select": {

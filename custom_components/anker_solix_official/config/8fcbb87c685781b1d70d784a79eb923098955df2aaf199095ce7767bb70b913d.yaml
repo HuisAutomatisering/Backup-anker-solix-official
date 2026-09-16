@@ -371,12 +371,6 @@ control_items:
     visibility_value: 3
     never_read_device: true  # NEVER read from device, only show user's input
     default_value: 0  # Default value when user hasn't set anything (must >= min_value)
-    value_constraints:
-      rules:
-        - type: "warning_range"
-          min: 1
-          max: 99
-          error_key: "power_below_optimal_range"
 
   charging_limit_soc:
     translation_key: "charging_limit_soc"

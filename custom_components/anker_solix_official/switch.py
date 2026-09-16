@@ -10,9 +10,9 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+from .base_entity import AnkerSolixBaseEntity, async_setup_entities_with_retry
 from .const import DOMAIN
 from .coordinator import AnkerSolixOfficialCoordinator
-from .base_entity import AnkerSolixBaseEntity, async_setup_entities_with_retry
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -74,14 +74,12 @@ class AnkerSolixSwitch(AnkerSolixBaseEntity, SwitchEntity):
     @property
     def available(self) -> bool:
         """Return if entity is available."""
-        if not self.coordinator.is_connected():
+        if not super().available:
             return False
 
         if self._read_entity_key is not None:
             read_address = self.coordinator.get_data_point_address(self._read_entity_key)
             self._log_unreadable_register(read_address, role="status")
-
-        self._log_unreadable_register(self._register_address)
 
         if not self._is_capability_supported():
             return False

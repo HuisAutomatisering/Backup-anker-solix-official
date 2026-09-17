@@ -321,6 +321,15 @@
       "battery_power_setpoint": {
         "name": "Power Control"
       },
+      "charging_limit_soc": {
+        "name": "Charging Limit"
+      },
+      "discharge_limit_soc": {
+        "name": "Discharge Limit"
+      },
+      "backup_reserve_soc": {
+        "name": "Backup Reserve"
+      },
       "ac_active_power_percent": {
         "name": "Active Power Adjust Percentage"
       }
